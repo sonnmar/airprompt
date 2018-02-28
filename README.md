@@ -34,14 +34,15 @@ The Segments from left to right are:
  - GIT-Information with number of commits ahead or behind the related online
    repository, the number of untracked, modified and unstaged as well as
    modified and staged files. First I tried the vcs_info-plugin of zsh, but it
-   didn't work for me. I get some ideas from
-   [Josh Dick](http://joshdick.net/2017/06/08/my_git_prompt_for_zsh_revisited.html),
+   didn't work for me. I get some ideas from [Josh
+   Dick](http://joshdick.net/2017/06/08/my_git_prompt_for_zsh_revisited.html),
    throw the plugin away and use the git commands directly.
  - The working directory
  - Hostname
  - Username
- - Statistics with an Error-flag, a flag for running background processes and
-   the number of all files and visible files in the active directory.
+ - Statistics with the number of background processes and the number of files
+   in the active directory.
+ - Returncode of the last statement
 
 
 ## Installation
@@ -69,14 +70,15 @@ split the left from the right prompt and set the fore- and backgroundcolors of
 the prompt. The displayed string is set to '---'.
 
 ```shell
-typeset -a AP_CONFIG_SECS
-AP_CONFIG_SECS+=('prs_mode 000 004 000 002')       # VI-Mode
-AP_CONFIG_SECS+=('prs_git 007 019')                # Git
-AP_CONFIG_SECS+=('prs_path 016 018')               # Path
-AP_CONFIG_SECS+=('prs_prompt 007 000')             # Prompt
-AP_CONFIG_SECS+=('prs_host 016 018')               # Hostname
-AP_CONFIG_SECS+=('prs_user 007 019')               # Username
-AP_CONFIG_SECS+=('prs_stat 000 004 001 002')       # Status
+typeset -a AP_DEFAULT_SECS
+AP_DEFAULT_SECS+=('prs_mode 000 004 000 002')       # VI-Mode
+AP_DEFAULT_SECS+=('prs_git 007 019')                # Git
+AP_DEFAULT_SECS+=('prs_path 016 018')               # Path
+AP_DEFAULT_SECS+=('prs_prompt 007 000')             # Prompt
+AP_DEFAULT_SECS+=('prs_host 016 018')               # Hostname
+AP_DEFAULT_SECS+=('prs_user 007 019')               # Username
+AP_DEFAULT_SECS+=('prs_stat 000 l1')                # Statistics
+AP_DEFAULT_SECS+=('prs_error 000 001')              # Error
 ```
 
 You can add a new function to your `.zshrc`. The function should handle the
@@ -109,6 +111,11 @@ terminal with:
 ```shell
 for code in {000..021}; do print -P -- "$code: %K{$code}Test%k"; done
 ```
+
+You can set the background color to the background color of an other segment
+when you start the color code with an 'l' - a synonym for 'like' - following by
+the number of the 'master' segment in the configuration array. This don't work,
+if the 'slave' segment, change the background color like the 'master' segment.
 
 
 ## ToDo

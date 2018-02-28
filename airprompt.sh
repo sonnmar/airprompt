@@ -23,7 +23,8 @@ AP_DEFAULT_SECS+=('prs_path 016 018')               # Path
 AP_DEFAULT_SECS+=('prs_prompt 007 000')             # Prompt
 AP_DEFAULT_SECS+=('prs_host 016 018')               # Hostname
 AP_DEFAULT_SECS+=('prs_user 007 019')               # Username
-AP_DEFAULT_SECS+=('prs_stat 000 004 001 002')       # Status
+AP_DEFAULT_SECS+=('prs_stat 000 l1')                # Statistics
+AP_DEFAULT_SECS+=('prs_error 000 001')              # Error
 
 AP_CONFIG=''
 if [[ -v 'AP_CONFIG_SECS' && ${#AP_CONFIG_SECS} -gt 0 ]]; then
@@ -53,24 +54,7 @@ precmd_err() { ERROR=$? }
 precmd_functions+=( precmd_err )
 
 
-# function: build_prs
-# build a segmentstring
-# $1    backgroundcolor
-# $2    next backgroundcolor
-# $3    Text in Segment
-# $4    side of the segment (left/right)
-build_prs () {
-    local str=''
-
-    if [[ "$4" == 'left' ]]; then
-        str="%K{$1}$3%k%K{$2}%F{$1}$SEG_SEP_LEFT%f%k"
-    else
-        str="%K{$2}%F{$1}$SEG_SEP_RIGHT%f%k%K{$1}$3%k"
-    fi
-
-    echo -n $str
-}
-
+##### displaying functions
 
 # Editormode
 # $1 first forground color
@@ -165,7 +149,7 @@ function prs_prompt() {
 # Username
 # $1 first forground color
 # $2 first background color
-prs_user () {
+function prs_user () {
     typeset -a ret
     local str
 
@@ -183,7 +167,7 @@ prs_user () {
 # Hostname
 # $1 first forground color
 # $2 first background color
-prs_host () {
+function prs_host () {
     typeset -a ret
     local str
 
@@ -201,37 +185,72 @@ prs_host () {
 # Some Statistics
 # $1 first forground color
 # $2 first background color
-# $3 second forground color
-# $4 second Background color
-prs_stat () {
+function prs_stat () {
     typeset -a ret
     local str
-    local jc
+
+    # number of jobs
+    str+="%F{$1}$DIAMOND%j%f "
+
+    # number of files
+    str+="%F{$1}$LIST${$(ls | wc -l)/' '#/}%f "
+
+    ret=("$2" "$str")
+    print -l $ret
+}
+
+
+# Errornumber
+# $1 first forground color
+# $2 first background color
+function prs_error () {
+    typeset -a ret
+    local str
 
     # Error
     if [[ "$ERROR" -ne 0 ]]; then
-        str+="%F{$3}$CROSS$ERROR%f "
+        str+="%F{$1} $ERROR %f"
     else
-        str+="%F{$1}$CROSS%f "
+        str+='-'
     fi
 
-    # background jobs
-    jc=${$(jobs -l | wc -l)/' '#/}
-    if [[ "$jc" -ne 0 ]]; then
-        str+="%F{$3}$DIAMOND$jc%f "
-    else
-        str+="%F{$1}$DIAMOND%f "
-    fi
-
-    # number of files
-    str+="%F{$1}$LIST${$(ls -A | wc -l)/' '#/}:${$(ls | wc -l)/' '#/}%f "
-
-    # background
-    local bgc="$2"
-    [[ $KEYMAP == 'vicmd' ]] && bgc="$4"
-
-    ret=("$bgc" "$str")
+    ret=("$2" "$str")
     print -l $ret
+}
+
+
+##### helping functions #####
+
+# function: build_prs
+# build a segmentstring
+# $1    backgroundcolor
+# $2    next backgroundcolor
+# $3    Text in Segment
+# $4    side of the segment (left/right)
+build_prs () {
+    local str=''
+
+    if [[ "$4" == 'left' ]]; then
+        str="%K{$1}$3%k%K{$2}%F{$1}$SEG_SEP_LEFT%f%k"
+    else
+        str="%K{$2}%F{$1}$SEG_SEP_RIGHT%f%k%K{$1}$3%k"
+    fi
+
+    echo -n $str
+}
+
+
+# function: get_bgc
+# get the background color
+# $1    number of the segment
+get_bgc () {
+    local bgc="${bgcs[$1]}"
+
+    if [[ "${bgc:0:1}" == 'l'  ]]; then
+        bgc="${bgcs[${bgc:1:2}]}"
+    fi
+
+    echo -n $bgc
 }
 
 
@@ -247,6 +266,8 @@ function zle-line-init zle-keymap-select () {
     local back=()
     local side='left'
     local str=''
+    local bgc=''
+    local nbgc=''
 
     # first turn: get string and background to display later
     for config in ${(P)AP_CONFIG}; do
@@ -270,8 +291,11 @@ function zle-line-init zle-keymap-select () {
         # Get the String
         str="${strings[$i]}"
 
-        # if string mrked as empty set it empty
+        # if string marked as empty set it empty
         [[ "$str" == '-' ]] && str=''
+
+        # find the background color
+        bgc=$(get_bgc $i)
 
         # if string marked as prompt change the direction
         if [[ "$str" == '---' ]]; then
@@ -280,11 +304,14 @@ function zle-line-init zle-keymap-select () {
         # if not ...
         else
 
-            # ... set prompt string according to the direction
+            # ... set prompt string according to the direction based on
+            # the next background color
             if [[ $side == 'left' ]]; then
-                PROMPT+=$(build_prs "${bgcs[$i]}" "${bgcs[$i+1]}" "$str" "$side")
+                nbgc=$(get_bgc $i+1)
+                PROMPT+=$(build_prs "$bgc" "$nbgc" "$str" "$side")
             else
-                RPROMPT+=$(build_prs "${bgcs[$i]}" "${bgcs[$i-1]}" "$str" "$side")
+                nbgc=$(get_bgc $i-1)
+                RPROMPT+=$(build_prs "$bgc" "$nbgc" "$str" "$side")
             fi
 
         fi
