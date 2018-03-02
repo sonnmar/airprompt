@@ -9,21 +9,23 @@ else, it is just a shellscript.
 ![airprompt](./airprompt.png)
 
 The left and the right prompt is split in segments with different
-background-colors. Per default a segment is only shown if it is useful. For
-example the Hostname is only shown, if you are working on a remote Host,
-exactly if a ssh-connection is established.
+background-colors. Per default a segment is only shown, if it is useful. For
+example the Hostname is shown, if you are working on a remote Host, exactly if
+a ssh-connection is established.
 
 I used my command prompt in vi-Modes, so the first segment shows the active
 vi-mode, and change the background-color depending on the vi-mode. Like in
-vim-airline the last segment change the color too.
-
-The Script needs the [Powerline fonts](https://github.com/powerline/fonts).
-In my opinion it looks best with DejaVu Sans Mono for Powerline.
+vim-airline the statistics segment change the color along with the mode
+segment.
 
 The default color-settings needs a terminal with 256 colors. I have testet it
 with [iTerm2](http://iterm2.com) on MacOS and the [base16
-colorscheme](https://github.com/chriskempson/base16-shell). It did not in all
-color-schemes use the same colors as in vim, here is some work to be done.
+colorscheme](https://github.com/chriskempson/base16-shell). Not in all
+color-schemes the fore- and background colors are the same as in vim, a point
+at the ToDo-List.
+
+The Script needs the [Powerline fonts](https://github.com/powerline/fonts).
+In my opinion it looks best with DejaVu Sans Mono for Powerline.
 
 
 ## Features
@@ -31,12 +33,13 @@ color-schemes use the same colors as in vim, here is some work to be done.
 The Segments from left to right are:
 
  - The VI-Mode
- - GIT-Information with number of commits ahead or behind the related online
-   repository, the number of untracked, modified and unstaged as well as
-   modified and staged files. First I tried the vcs_info-plugin of zsh, but it
-   didn't work for me. I get some ideas from [Josh
+ - git-Information with the number of commits ahead or behind the related
+   online repository, the number of untracked files, the number of modified and
+   unstaged files and the number of modified and staged files. First I tried
+   the vcs_info-plugin of zsh, but it didn't work for me. I get some ideas from
+   [Josh
    Dick](http://joshdick.net/2017/06/08/my_git_prompt_for_zsh_revisited.html),
-   throw the plugin away and use the git commands directly.
+   throw the plugin away, and use the git commands directly.
  - The working directory
  - Hostname
  - Username
@@ -62,12 +65,12 @@ source ~/.config/zsh/airprompt/airprompt.sh
 
 ## Configuration
 
-You can change the default sequence of prompt segments, if you add an Array
-`AP_COMFIG_SECS` to your `.zshrc` in front of the source-statement. The
-appearance of the function-calls in the array sets the appearance from left to
+You can change the default sequence of prompt segments, if you add an array
+named `AP_COMFIG_SECS` to your `.zshrc` in front of the source-statement. The
+order of the function-calls in the array arrange the segments from left to
 right in the prompt. The function "prs_prompt" defined a pseudo-segment to
-split the left from the right prompt and set the fore- and backgroundcolors of
-the prompt. The displayed string is set to '---'.
+split the left from the right prompt and set the fore- and background colors of
+the prompt.
 
 ```shell
 typeset -a AP_DEFAULT_SECS
@@ -92,8 +95,7 @@ following parameter:
 The return-value should give back a Array with two elements. The first element
 is the used background-color and the second element is the string to display in
 the prompt-segment with the used foreground colors. An empty string is marked
-by a '-'. Don't use the strings '-' and '---' in your functions. Here a short
-function to display the prompt, as an example:
+by a '-'. Here a short function to display the prompt, as an example:
 
 ```shell
 function prs_path() {
@@ -105,17 +107,16 @@ function prs_path() {
 
 The script use the first 22 colors in the 3-digit-notification with %K and %F,
 where %K and %k starts and ends the background-color and %F and %f starts and
-ends the foreground-color. You get a simple list of the used colors in the
-terminal with:
+ends the foreground-color. A simple list of the used colors is shown with:
 
 ```shell
 for code in {000..021}; do print -P -- "$code: %K{$code}Test%k"; done
 ```
 
-You can set the background color to the background color of an other segment
-when you start the color code with an 'l' - a synonym for 'like' - following by
-the number of the 'master' segment in the configuration array. This don't work,
-if the 'slave' segment, change the background color like the 'master' segment.
+You can set the background color of a segment (slave)to the background color of
+an other segment (master), when you start the color code with an 'l' following
+by the number of the master segment in the configuration array. This don't
+work, if the function of the slave segment, change the background color itself.
 
 
 ## ToDo
