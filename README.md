@@ -66,22 +66,22 @@ source ~/.config/zsh/airprompt/airprompt.sh
 ## Configuration
 
 You can change the default sequence of prompt segments, if you add an array
-named `AP_COMFIG_SECS` to your `.zshrc` in front of the source-statement. The
+named `AP_CONFIG_SECS` to your `.zshrc` in front of the source-statement. The
 order of the function-calls in the array arrange the segments from left to
 right in the prompt. The function "prs_prompt" defined a pseudo-segment to
 split the left from the right prompt and set the fore- and background colors of
 the prompt.
 
 ```shell
-typeset -a AP_DEFAULT_SECS
-AP_DEFAULT_SECS+=('prs_mode 000 004 000 002')       # VI-Mode
-AP_DEFAULT_SECS+=('prs_git 007 019')                # Git
-AP_DEFAULT_SECS+=('prs_path 016 018')               # Path
-AP_DEFAULT_SECS+=('prs_prompt 007 000')             # Prompt
-AP_DEFAULT_SECS+=('prs_host 016 018')               # Hostname
-AP_DEFAULT_SECS+=('prs_user 007 019')               # Username
-AP_DEFAULT_SECS+=('prs_stat 000 l1')                # Statistics
-AP_DEFAULT_SECS+=('prs_error 000 001')              # Error
+typeset -a AP_CONFIG_SECS
+AP_CONFIG_SECS+=('prs_mode 000 004 000 002')    # VI-Mode
+AP_CONFIG_SECS+=('prs_git 007 019')             # Git
+AP_CONFIG_SECS+=('prs_path 016 018')            # Path
+AP_CONFIG_SECS+=('prs_prompt 007 000')          # Prompt
+AP_CONFIG_SECS+=('prs_host 016 018')            # Hostname
+AP_CONFIG_SECS+=('prs_user 007 019')            # Username
+AP_CONFIG_SECS+=('prs_stat 000 l1')             # Statistics
+AP_CONFIG_SECS+=('prs_error 000 001')           # Error
 ```
 
 You can add a new function to your `.zshrc`. The function should handle the
