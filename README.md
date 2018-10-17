@@ -53,7 +53,7 @@ The Segments from left to right are:
 Install the Script with git:
 
 ```shell
-git clone git@github.com:sonnmar/airprompt.git ~/.config/zsh/airprompt
+git clone https://github.com/sonnmar/airprompt.git ~/.config/zsh/airprompt
 ```
 
 And add the following statement at the end to your `.zshrc`
